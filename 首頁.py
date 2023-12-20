@@ -3,7 +3,11 @@ import datetime
 
 st.set_page_config(
     page_title="Axon",
-    initial_sidebar_state="expanded" 
+    page_icon="🚜",
+    initial_sidebar_state="auto",
+    menu_items={
+        'About': "勤工設備保養系統"
+    } 
 )
 
 st.title('⚜設備保養系統')
