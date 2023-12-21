@@ -1,0 +1,12 @@
+credentials:
+  usernames:
+    ck01:
+      name: admin
+      password: $2b$12$Ef.TMBDKmY8Tzyp6Y3ODw.p.IyyvxAoja251fAw1yUuLOZDYsZGcq # To be replaced with hashed password
+cookie:
+  expiry_days: 0
+  key: random_signature_key # Must be string
+  name: random_cookie_name
+preauthorized:
+  emails:
+  - yyy1021tw@gmail.com
