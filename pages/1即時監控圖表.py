@@ -11,6 +11,7 @@ def create_data_block(title, value, background_color):
         """
 
 def render_sidebar():
+    
     with st.sidebar:
         st.markdown('''即時反映目前運作狀況，透過設立搜索條件，迅速掌握設備是否異常。''')
 
@@ -162,5 +163,17 @@ def main_content():
             with card1:
                 st.markdown(create_card("堆高機C001", "30.50", "49.52", "正常", "#7F7F7F"), unsafe_allow_html=True)
 
-render_sidebar()
-main_content()
+if __name__ == "__main__":
+    #網頁呈現資訊
+    st.set_page_config(
+        page_title="即時監控圖表",
+        page_icon="🚜",
+        initial_sidebar_state="auto",
+        menu_items={
+            'About': "勤工設備保養系統"
+        } 
+    )
+    #邊頁設計
+    render_sidebar()
+    #內容設計
+    main_content()

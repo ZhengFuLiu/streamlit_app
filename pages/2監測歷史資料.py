@@ -74,105 +74,125 @@ def convert_df(df):
     # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return df.to_csv().encode('Big5')
 
-# Main code execution
-folder_directory = os.path.abspath(os.getcwd())
-render_sidebar()
-render_title()
-part_name = select_part_name()
-b, date_time_range = date_and_time_range_selection()
-if b:
+def df_present(part_name, date_time_range):
+    #確定工作目錄
+    folder_directory = os.path.abspath(os.getcwd())
     if part_name == None:
-        st.error('請選擇堆高機', icon="🚨")
+            st.error('請選擇堆高機', icon="🚨")
     else:
         item_name = part_name.split("-")[1]
-        try:
-            df = pd.read_csv(f"{folder_directory}/data/{item_name}.csv", encoding="Big5")
-            data = df[[col for col in df.columns if not col.startswith('Unnamed')]]
-            data["時間"] = pd.to_datetime(data["時間"])
-            if len(date_time_range) == 2:
-                subdf = data[(data["時間"] >= date_time_range[0]) & (data["時間"] <= date_time_range[1])]
-                if len(subdf) > 0:
-                    st.dataframe(subdf, use_container_width = True)
-                    csv = convert_df(subdf)
-                    col1, col2, col3, col4, col5 = st.columns(5)
-                    with col5:
-                        st.download_button(
-                            label="📄 :blue[輸出報表]",
-                            data=csv,
-                            file_name=f'{part_name.replace("-", "")}({date_time_range[0].strftime("%Y%m%d")}_{date_time_range[1].strftime("%Y%m%d")}).csv',
-                            mime='text/csv',
-                        )
-                else:
-                    st.success('No items to display.', icon="✅")
-            elif date_time_range == "這個月":
-                start = pd.Timestamp(datetime.datetime.now().year, datetime.datetime.now().month, 1)
-                end = pd.to_datetime(datetime.datetime.now())
-                subdf = data[(data["時間"] >= start) & (data["時間"] <= end)]
-                if len(subdf) > 0:
-                    st.dataframe(subdf, use_container_width = True)
-                    csv = convert_df(subdf)
-                    col1, col2, col3, col4, col5 = st.columns(5)
-                    with col5:
-                        st.download_button(
-                            label="📄 :blue[輸出報表]",
-                            data=csv,
-                            file_name=f'{part_name.replace("-", "")}({date_time_range}).csv',
-                            mime='text/csv',
-                        )
-                else:
-                    st.success('No items to display.', icon="✅")
-            elif date_time_range == "上個月":
-                start = pd.Timestamp(datetime.datetime.now().year, datetime.datetime.now().month - 1, 1)
-                end = pd.Timestamp(datetime.datetime.now().year, datetime.datetime.now().month, 1) - relativedelta(seconds=1)
-                subdf = data[(data["時間"] >= start) & (data["時間"] <= end)]
-                if len(subdf) > 0:
-                    st.dataframe(subdf, use_container_width = True)
-                    csv = convert_df(subdf)
-                    col1, col2, col3, col4, col5 = st.columns(5)
-                    with col5:
-                        st.download_button(
-                            label="📄 :blue[輸出報表]",
-                            data=csv,
-                            file_name=f'{part_name.replace("-", "")}({date_time_range}).csv',
-                            mime='text/csv',
-                        )
-                else:
-                    st.success('No items to display.', icon="✅")
-            elif date_time_range == "上一季":
-                now = datetime.datetime.now()
-                current_quarter_start = datetime.datetime(now.year, 3 * ((now.month - 1) // 3) + 1, 1)
-                last_quarter_start = current_quarter_start - relativedelta(months=3)
-                last_quarter_end = current_quarter_start - relativedelta(days=1)
-                subdf = data[(data["時間"] >= last_quarter_start) & (data["時間"] <= last_quarter_end)]
-                if len(subdf) > 0:
-                    st.dataframe(subdf, use_container_width = True)
-                    csv = convert_df(subdf)
-                    col1, col2, col3, col4, col5 = st.columns(5)
-                    with col5:
-                        st.download_button(
-                            label="📄 :blue[輸出報表]",
-                            data=csv,
-                            file_name=f'{part_name.replace("-", "")}({date_time_range}).csv',
-                            mime='text/csv',
-                        )
-                else:
-                    st.success('No items to display.', icon="✅")
-            elif date_time_range == "上半年":
-                first_half_start = datetime.date(datetime.datetime.now().year, 1, 1)
-                first_half_end = datetime.date(datetime.datetime.now().year, 6, 30)
-                subdf = data[(data["時間"] >= first_half_start) & (data["時間"] <= first_half_end)]
-                if len(subdf) > 0:
-                    st.dataframe(subdf, use_container_width = True)
-                    csv = convert_df(subdf)
-                    col1, col2, col3, col4, col5 = st.columns(5)
-                    with col5:
-                        st.download_button(
-                            label="📄 :blue[輸出報表]",
-                            data=csv,
-                            file_name=f'{part_name.replace("-", "")}({date_time_range}).csv',
-                            mime='text/csv',
-                        )
-                else:
-                    st.success('No items to display.', icon="✅")
-        except Exception as e:
-            st.success('No items to display.', icon="✅")
+        if date_time_range == None:
+            st.error('請選擇日期區間', icon="🚨")
+        else:
+            try:
+                df = pd.read_csv(f"{folder_directory}/data/{item_name}.csv", encoding="Big5")
+                data = df[[col for col in df.columns if not col.startswith('Unnamed')]]
+                data["時間"] = pd.to_datetime(data["時間"])
+                if len(date_time_range) == 2:
+                    subdf = data[(data["時間"] >= date_time_range[0]) & (data["時間"] <= date_time_range[1])]
+                    if len(subdf) > 0:
+                        st.dataframe(subdf, use_container_width = True)
+                        csv = convert_df(subdf)
+                        col1, col2, col3, col4, col5 = st.columns(5)
+                        with col5:
+                            st.download_button(
+                                label="📄 :blue[輸出報表]",
+                                data=csv,
+                                file_name=f'{part_name.replace("-", "")}({date_time_range[0].strftime("%Y%m%d")}_{date_time_range[1].strftime("%Y%m%d")}).csv',
+                                mime='text/csv',
+                            )
+                    else:
+                        st.success('No items to display.', icon="✅")
+                elif date_time_range == "這個月":
+                    start = pd.Timestamp(datetime.datetime.now().year, datetime.datetime.now().month, 1)
+                    end = pd.to_datetime(datetime.datetime.now())
+                    subdf = data[(data["時間"] >= start) & (data["時間"] <= end)]
+                    if len(subdf) > 0:
+                        st.dataframe(subdf, use_container_width = True)
+                        csv = convert_df(subdf)
+                        col1, col2, col3, col4, col5 = st.columns(5)
+                        with col5:
+                            st.download_button(
+                                label="📄 :blue[輸出報表]",
+                                data=csv,
+                                file_name=f'{part_name.replace("-", "")}({date_time_range}).csv',
+                                mime='text/csv',
+                            )
+                    else:
+                        st.success('No items to display.', icon="✅")
+                elif date_time_range == "上個月":
+                    start = pd.Timestamp(datetime.datetime.now().year, datetime.datetime.now().month - 1, 1)
+                    end = pd.Timestamp(datetime.datetime.now().year, datetime.datetime.now().month, 1) - relativedelta(seconds=1)
+                    subdf = data[(data["時間"] >= start) & (data["時間"] <= end)]
+                    if len(subdf) > 0:
+                        st.dataframe(subdf, use_container_width = True)
+                        csv = convert_df(subdf)
+                        col1, col2, col3, col4, col5 = st.columns(5)
+                        with col5:
+                            st.download_button(
+                                label="📄 :blue[輸出報表]",
+                                data=csv,
+                                file_name=f'{part_name.replace("-", "")}({date_time_range}).csv',
+                                mime='text/csv',
+                            )
+                    else:
+                        st.success('No items to display.', icon="✅")
+                elif date_time_range == "上一季":
+                    now = datetime.datetime.now()
+                    current_quarter_start = datetime.datetime(now.year, 3 * ((now.month - 1) // 3) + 1, 1)
+                    last_quarter_start = current_quarter_start - relativedelta(months=3)
+                    last_quarter_end = current_quarter_start - relativedelta(days=1)
+                    subdf = data[(data["時間"] >= last_quarter_start) & (data["時間"] <= last_quarter_end)]
+                    if len(subdf) > 0:
+                        st.dataframe(subdf, use_container_width = True)
+                        csv = convert_df(subdf)
+                        col1, col2, col3, col4, col5 = st.columns(5)
+                        with col5:
+                            st.download_button(
+                                label="📄 :blue[輸出報表]",
+                                data=csv,
+                                file_name=f'{part_name.replace("-", "")}({date_time_range}).csv',
+                                mime='text/csv',
+                            )
+                    else:
+                        st.success('No items to display.', icon="✅")
+                elif date_time_range == "上半年":
+                    first_half_start = datetime.date(datetime.datetime.now().year, 1, 1)
+                    first_half_end = datetime.date(datetime.datetime.now().year, 6, 30)
+                    subdf = data[(data["時間"] >= first_half_start) & (data["時間"] <= first_half_end)]
+                    if len(subdf) > 0:
+                        st.dataframe(subdf, use_container_width = True)
+                        csv = convert_df(subdf)
+                        col1, col2, col3, col4, col5 = st.columns(5)
+                        with col5:
+                            st.download_button(
+                                label="📄 :blue[輸出報表]",
+                                data=csv,
+                                file_name=f'{part_name.replace("-", "")}({date_time_range}).csv',
+                                mime='text/csv',
+                            )
+                    else:
+                        st.success('No items to display.', icon="✅")
+            except Exception as e:
+                st.success('No items to display.', icon="✅")
+if __name__ == "__main__":
+    #網頁呈現資訊
+    st.set_page_config(
+        page_title="監測歷史資料",
+        page_icon="🚜",
+        initial_sidebar_state="auto",
+        menu_items={
+            'About': "勤工設備保養系統"
+        } 
+    )
+    #邊頁設計
+    render_sidebar()
+    #上半區內容設計
+    render_title()
+    #選取機台型號
+    part_name = select_part_name()
+    #選取日期區間
+    b, date_time_range = date_and_time_range_selection()
+    #判斷按鈕觸發並生成文本
+    if b:
+        df_present(part_name, date_time_range)
