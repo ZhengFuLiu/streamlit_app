@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit_authenticator as stauth
 
 def main_page():
     #主頁設定
